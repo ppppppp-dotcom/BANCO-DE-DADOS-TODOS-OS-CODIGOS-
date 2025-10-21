@@ -1,0 +1,149 @@
+CREATE database trabalho_fut;
+USE  trabalho_fut;
+
+CREATE TABLE jogador(
+id_jogador INT AUTO_INCREMENT PRIMARY KEY,
+nome_jogador VARCHAR (50) NOT NULL,
+numero_camisa  INT UNSIGNED NOT NULL,
+posicao VARCHAR (50) NOT NULL,
+idade INT UNSIGNED,
+clube VARCHAR (50) NOT NULL
+);
+
+CREATE TABLE times (
+    id_time INT AUTO_INCREMENT PRIMARY KEY,
+    nome_time VARCHAR(50) NOT NULL,
+    cidade_time VARCHAR(50) NOT NULL,
+    estado_time VARCHAR(50)
+);
+
+
+
+CREATE TABLE titulos(
+id_titulos INT AUTO_INCREMENT PRIMARY KEY,
+vices VARCHAR (50) NOT NULL,
+times_vencedores VARCHAR (50) NOT NULL,
+nome_competicoes VARCHAR (100) NOT NULL,	
+jogador_destaque VARCHAR (50) NOT NULL,
+);
+
+
+CREATE TABLE campeonatos (
+    id_campeonato INT AUTO_INCREMENT,  -- Indica que o número vai aumentar sozinho
+    PRIMARY KEY (id_campeonato),       -- Indica que é a chave principal
+    nome_campeonato VARCHAR(100) NOT NULL,
+    trofeus INT UNSIGNED NOT NULL
+);
+
+
+
+CREATE TABLE estaticas_jogador(
+id_estatisticas INT AUTO_INCREMENT PRIMARY KEY,
+cartoes_vermelhos INT UNSIGNED NOT NULL,
+cartoes_amarelos INT UNSIGNED ,
+faltas_feitas INT UNSIGNED ,   -- CORRIGIR ESSA TABELA !!!!!!!
+gols INT UNSIGNED NOT NULL,
+nome_jogador VARCHAR (50),
+clube VARCHAR (50)
+);
+
+SELECT gols, nome_time
+from Campeonatos, times
+where gols = CURDATE();
+
+SELECT c.NOME, r.quartonumero
+from cliente c
+INNER Join Reserva r 
+ON r.CLIENTESId = c.id
+where R.entrada = curdate();
+
+
+INSERT INTO jogador (nome_jogador, numero_camisa, posicao, idade, clube) VALUES
+('Paulinho', 10, 'Atacante', 25, 'Atletico Mineiro'),
+('Hulk', 7, 'Atacante', 39, 'Atletico Mineiro'),
+('Raphael Veiga', 23, 'Meio-Campo', 'Palmeiras' ),
+('Yuri Alberto', 9, 'Atacante', 24, 'Corinthians' ),
+('Pedro', 9, 'Atacante', 28, 'Flamengo');
+
+
+INSERT INTO times (nome_time, cidade_time, estado_time) VALUES
+('Athletico Pr', 'Curitiba', 'Paraná'), -- Adicione a vírgula
+('Cuiaba', 'Cuiaba', 'Mato grosso'),   -- Adicione o ponto-e-vírgula (ou apenas o ponto-e-vírgula se não for a última linha)
+('Parana Club', 'Curitiba', 'Parana'),
+('Bahia', 'Salvador', 'Bahia'),
+('Corinthians', 'São Paulo', 'São Paulo'),
+('Vasco da Gama', 'Rio de Janeiro', 'Rio de Janeiro');
+
+INSERT INTO titulos (times_vencedores, vices, nome_competicoes, jogador_destaque) value
+('Botafogo', 'Atletico Mineiro', 'Libertadores', 'Junior Santos'),
+('Operario', 'Maringa', 'Estadual Paranaense', 'Iago Telles'),
+('Botafogo', 'Palmeiras', 'Brasileirão', 'Luiz Henrique' ),
+('Racing Club', 'Cruzeiro', 'Sul-Americana', 'Adraian Martinez' );
+
+INSERT INTO campeonatos (nome_campeonatos) VALUE
+('Libertadotres'),
+('Copa do Brasil'),
+('Estaduais'),
+('Sul-Americana');
+
+
+INSERT INTO estatisticas_jogador (cartoes_vermelhos, cartoes_amarelos, faltas_feitas, gols, nome_jogador, clube ) value
+(4, 7, 15, 19, 'Paulinho', 'Atletico MG' ),
+(2, 4, 9, 19, 'Hulk', 'Atletico MG' ),
+(5, 3, 10, 20, 'Raphael Veiga', 'Palmeiras'),
+(1, 2, 5, 30, 'Yuri Alberto', 'Corinthians'),
+(3, 8, 12, 20, 'Pedro', 'Flamengo'); 
+
+
+SELECT *   -- seleciona todos os jogadores 
+FROM jogador
+
+SELECT nome_jogador, posicao, clube
+FROM jogador                         -- Seleciona nome, posição e clube 
+ORDER BY nome_jogador ASC;
+
+SELECT nome_jogador, gols
+FROM estaticas_jogador -- Mostra qual jogador tem mais de 10 gols
+WHERE gols > 10
+ORDER BY gols DESC 
+
+
+SELECT nome_jogador, cartoes_amarelos, cartoes_vermelhos
+FROM estaticas_jogador  -- jOGADOR COM 5 AMARELOS OU 1 VERMELHO
+WHERE cartoes_amarelos > 5 or cartoes vermelhos >= 1;
+
+SELECT nome_jogador, clube
+FROM jogador    -- todos os jogadores do flamengo
+WHERE clube LIKE 'Flamengo';
+
+
+SELECT nome_campeonato, trofeus
+FROM campeonatos  -- Mostra os campeonatos e seu trofeus ordenando qual tem mais e qual tem menos 
+ORDER BY trofeus DESC;
+
+
+SELECT nome_competicoes, times_vencedores, vices
+FROM titulos    -- mostrar tituloos e seu s times vencedores
+ORDER BY nome_competicoes;
+
+SELECT j.nome_jogador, j.nome_posicao, e.gols, e.cartoes_amarelos, e.cartoes_vermelhos 
+from jogador  -- Faz junção entre jogador e estaticas_jogador --
+join estaticas_jogador e ON j.nome_jogador = e.nome_jogador
+order by e.gols DESC;
+
+SELECT j.clube, SUM(e.gols) AS total_gols
+FROM jogador j
+JOIN estaticas_jogador e ON j.nome_jogador = e.nome_jogador
+group by j.clube
+HAVING SUM(e.gols) > 10
+ORDER BY total_gols DESC;   -- SOMENTE TIME COM MAIS DE 10 GOLS FEITOS 
+
+SELECT nome_jogador, gols
+FROM estaticas_jogador -- jogadores com gols acima da media geral 
+WHERE gols > ( SELECT avg (gols) FROM estaticas_jogador);
+
+SELECT t.times_vencedores, t.nome_competições, t.jogador_destaque
+from titulos t
+JOIN jogador j on t.jogador_destaque = j.nome_jogador
+ORDER BY t.nome_competcoes asc;  -- junção com titulos
+-- mostra qual titulo e qual jogador foi o destque em cada.
